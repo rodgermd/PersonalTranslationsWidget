@@ -1,0 +1,25 @@
+{
+  "name":"ladela/personal-translations-widget-bundle",
+  "description":"Adds translations widget based on Personal translations",
+  "keywords":["twig", "form", "translations"],
+  "homepage":"https://github.com/rodgermd/PersonalTranslationsWidget.git",
+  "type":"symfony-bundle",
+  "license":"MIT",
+  "authors":[
+    {
+      "name":"Alexander Murashov",
+      "email":"rodger@ladela.com"
+    }
+  ],
+  "require":{
+    "symfony/framework-bundle":"2.1.*",
+    "stof/doctrine-extensions-bundle":"dev-master",
+    "twig/extensions":"1.0.*"
+  },
+  "autoload":{
+    "psr-0":{
+      "Ladela\\PersonalTranslationsWidgetBundle":""
+    }
+  },
+  "target-dir":"Ladela/PersonalTranslationsWidgetBundle"
+}
