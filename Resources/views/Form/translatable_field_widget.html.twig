@@ -16,17 +16,17 @@
 
       <div class="translations-container">
         <ul class="nav nav-tabs" id="translations-tabs">
-          {% for lang in languages %}
-            <li{% if active_language == lang %} class="active"{% endif %}><a href="#translations-tabs-{{ lang }}">{{ lang }}</a></li>
+          {% for key, lang in languages %}
+            <li{% if active_language == key %} class="active"{% endif %}><a href="#translations-tabs-{{ key }}">{{ lang }}</a></li>
           {% endfor %}
         </ul>
         <div class="tab-content">
-          {% for lang in languages %}
-            <div class="tab-pane {% if active_language == lang %}active{% endif %}" id="translations-tabs-{{ lang }}">
+          {% for key, lang in languages %}
+            <div class="tab-pane {% if active_language == key %}active{% endif %}" id="translations-tabs-{{ key }}">
               {% for translatable_field in translatable_fields %}
                 {% if parentform[translatable_field] is defined %}
                   {% for child in parentform[translatable_field].children %}
-                    {% if lang == child.vars.label %}
+                    {% if key == child.vars.label %}
                       {{ form_label(parentform[translatable_field]) }}
                       {{ form_widget(child) }}
                     {% endif %}

@@ -4,16 +4,35 @@ namespace Ladela\PersonalTranslationsWidgetBundle\Twig\Helper;
 
 use Gedmo\Translatable\TranslatableListener;
 use Doctrine\Bundle\DoctrineBundle\Registry;
+use Symfony\Component\DependencyInjection\Container;
+use Ladela\PersonalTranslationsWidgetBundle\TranslationsGetter\TranslationsGetterInterface;
 
-class TranslationsHelper
+class TranslationsHelper extends \Symfony\Component\DependencyInjection\ContainerAware
 {
   protected $gedmo_translatable_listener;
   protected $doctrine;
+  protected $languages = array();
 
-  public function __construct(TranslatableListener $gedmo_translatable_listener, Registry $doctrine)
+  public function __construct(TranslatableListener $gedmo_translatable_listener, Registry $doctrine, Container $container)
   {
     $this->gedmo_translatable_listener = $gedmo_translatable_listener;
     $this->doctrine                    = $doctrine;
+
+    $languages = $container->getParameter('ladela_personal_translations.languages');
+    $getter = $container->getParameter('ladela_personal_translations.getter');
+
+    if (!empty($languages))
+    {
+      $this->languages = $languages;
+    }
+    elseif(!empty($getter))
+    {
+      $getter = $container->get($getter);
+      if ($getter instanceof TranslationsGetterInterface)
+      {
+        $this->languages = $getter->getLanguages();
+      }
+    }
   }
 
   /**
@@ -41,6 +60,6 @@ class TranslationsHelper
    */
   public function getLanguages()
   {
-    return array('en', 'de');
+    return $this->languages;
   }
 }

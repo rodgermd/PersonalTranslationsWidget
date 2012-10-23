@@ -5,16 +5,18 @@ namespace Ladela\PersonalTranslationsWidgetBundle\Form\Type;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Ladela\PersonalTranslationsWidgetBundle\Twig\Helper\TranslationsHelper;
 
 use Ladela\PersonalTranslationsWidgetBundle\Form\Subscriber\AddTranslatedFieldSubscriber;
 
 class TranslatableFieldType extends AbstractType
 {
-  protected $container;
+  protected $container, $helper;
 
-  public function __construct(ContainerInterface $container)
+  public function __construct(ContainerInterface $container, TranslationsHelper $helper)
   {
     $this->container = $container;
+    $this->helper = $helper;
   }
 
   public function buildForm(FormBuilderInterface $builder, array $options)
@@ -37,7 +39,7 @@ class TranslatableFieldType extends AbstractType
     $options['remove_empty'] = true; //Personal Translations without content are removed
     $options['csrf_protection'] = false;
     $options['personal_translation'] = false; //Personal Translation class
-    $options['locales'] = array('en', 'de'); //the locales you wish to edit
+    $options['locales'] = $this->helper->getLanguages(); //the locales you wish to edit
     $options['required_locale'] = array('en'); //the required locales cannot be blank
     $options['field'] = false; //the field that you wish to translate
     $options['widget'] = "text"; //change this to another widget like 'texarea' if needed

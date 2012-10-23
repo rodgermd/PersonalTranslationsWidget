@@ -71,8 +71,9 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
     // '<locale>' => '<field>|<locale>'
     $collection = array();
 
-    foreach ($this->options['locales'] as $locale) {
-      $collection[$locale] = $this->options['field'] . ":" . $locale;
+    foreach ($this->options['locales'] as $key => $locale) {
+      if (is_numeric($key)) $key = $locale;
+      $collection[$key] = $this->options['field'] . ":" . $key;
     }
 
     return $collection;

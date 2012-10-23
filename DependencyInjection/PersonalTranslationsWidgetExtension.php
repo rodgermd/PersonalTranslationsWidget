@@ -22,17 +22,11 @@ class PersonalTranslationsWidgetExtension extends Extension
     $configuration = new Configuration();
     $config        = $this->processConfiguration($configuration, $configs);
 
-    $getter = $config['getter'];
-    $languages = $config['languages'];
-
-    if (is_array($languages) and count($languages)) {
-      $container->setParameter('personal_translations_widget.languages', $languages);
-    }
-    elseif($getter) {
-
-    }
-
     $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
     $loader->load('services.yml');
+
+    $container->setParameter('ladela_personal_translations.getter', $config['getter']);
+    $container->setParameter('ladela_personal_translations.languages', $config['languages']);
   }
+
 }

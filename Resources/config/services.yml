@@ -3,11 +3,11 @@ services:
     class: Ladela\PersonalTranslationsWidgetBundle\Form\Type\TranslatableFieldType
     tags:
       - { name: form.type, alias: translatable_field }
-    arguments: [@service_container]
+    arguments: [@service_container, @twig.translations.ladela_translations_helper]
 
   twig.translations.ladela_translations_helper:
     class: Ladela\PersonalTranslationsWidgetBundle\Twig\Helper\TranslationsHelper
-    arguments: [@gedmo.listener.translatable, @doctrine]
+    arguments: [@gedmo.listener.translatable, @doctrine, @service_container]
 
   twig.translations.ladela_translations_extension:
     class: Ladela\PersonalTranslationsWidgetBundle\Twig\TranslationsTwigExtension
