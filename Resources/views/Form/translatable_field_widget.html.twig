@@ -1,0 +1,43 @@
+{% block translatable_field_widget %}
+  {% set translatable_fields = get_entity_translatable_fields(form.parent.vars.data) %}
+  {% if translatable_fields is not empty %}
+
+    {% set parentform = form.parent %}
+    {% set unrendered = false %}
+    {% for translatable_field in translatable_fields %}
+      {% if parentform[translatable_field] is defined and parentform[translatable_field].rendered == false %}
+        {% set unrendered = true %}
+      {% endif %}
+    {% endfor %}
+
+    {% if unrendered %}
+      {% set languages       = get_languages() %}
+      {% set active_language = app.request.locale %}
+
+      <div class="translations-container">
+        <ul class="nav nav-tabs" id="translations-tabs">
+          {% for lang in languages %}
+            <li{% if active_language == lang %} class="active"{% endif %}><a href="#translations-tabs-{{ lang }}">{{ lang }}</a></li>
+          {% endfor %}
+        </ul>
+        <div class="tab-content">
+          {% for lang in languages %}
+            <div class="tab-pane {% if active_language == lang %}active{% endif %}" id="translations-tabs-{{ lang }}">
+              {% for translatable_field in translatable_fields %}
+                {% if parentform[translatable_field] is defined %}
+                  {% for child in parentform[translatable_field].children %}
+                    {% if lang == child.vars.label %}
+                      {{ form_label(parentform[translatable_field]) }}
+                      {{ form_widget(child) }}
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
+              {% endfor %}
+            </div>
+          {% endfor %}
+          {% for translatable_field in translatable_fields %}{% set a = parentform[translatable_field].setRendered() %}{% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  {% endif %}
+{% endblock translatable_field_widget %}

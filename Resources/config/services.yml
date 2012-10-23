@@ -1,0 +1,7 @@
+services:
+  form.type.translatable:
+      class: Ladela\PersonalTranslationsWidget\Form\Type\TranslatedFieldType
+      tags:
+        - { name: form.type, alias: translatable_field }
+      arguments: [@service_container]
+
