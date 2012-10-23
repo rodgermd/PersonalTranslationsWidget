@@ -18,11 +18,12 @@ class Configuration implements ConfigurationInterface
     public function getConfigTreeBuilder()
     {
         $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('personal_translations');
+        $rootNode = $treeBuilder->root('personal_translations_widget');
 
-        // Here you should define the parameters that are allowed to
-        // configure your bundle. See the documentation linked above for
-        // more information on that topic.
+        $rootNode->children()
+          ->arrayNode('languages')->prototype('scalar')->end()->end()
+          ->scalarNode('getter')->defaultNull()->end()
+        ->end();
 
         return $treeBuilder;
     }
