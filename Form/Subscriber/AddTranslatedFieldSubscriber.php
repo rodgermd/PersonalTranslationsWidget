@@ -179,15 +179,18 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
     }
 
     foreach ($this->bindTranslations($data) as $binded) {
+      $field_key = $binded['fieldKey'];
+
       $form->add($this->factory->createNamed(
         $binded['fieldName'],
-        is_string($this->options['widgets']) ? $this->options['widgets'] : @$this->options['widgets'][$binded['fieldKey']],
+        is_string($this->options['widgets']) ? $this->options['widgets'] : @$this->options['widgets'][$field_key],
         $binded['translation']->getContent(),
+        array_merge(@$this->options['field_options'][$field_key] ?: array(),
         array(
           'label'         => $binded['locale'],
           'required'      => in_array($binded['locale'], $this->options['required_locale']),
           'property_path' => false,
-        )
+        ))
       ));
     }
   }

@@ -42,7 +42,8 @@ class TranslatableFieldType extends AbstractType
       'locales'                => $this->helper->getLanguages(),
       'required_locale'        => array('en'),
       'fields'                 => false,
-      'widgets'                 => 'text',
+      'widgets'                => 'text',
+      'field_options'          => array(),
       'entity_manager_removal' => true,
       'object'                 => null,
       'required'               => false
