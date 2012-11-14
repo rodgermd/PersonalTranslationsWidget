@@ -45,14 +45,14 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
     foreach ($data as $Translation) {
       foreach ($this->options['fields'] as $field)
         if (strtolower($Translation->getField()) == strtolower($field)) {
-          $availableTranslations[strtolower($Translation->getLocale())] = $Translation;
+          $availableTranslations[strtolower($Translation->getLocale())][$field] = $Translation;
         }
     }
 
     foreach ($this->getFieldNames() as $locale => $fields) {
       foreach ($fields as $field_key => $field_name) {
         if (isset($availableTranslations[strtolower($locale)])) {
-          $Translation = $availableTranslations[strtolower($locale)];
+          $Translation = $availableTranslations[strtolower($locale)][$field_key];
         } else {
           $Translation = $this->createPersonalTranslation($locale, $field_key, NULL);
         }
