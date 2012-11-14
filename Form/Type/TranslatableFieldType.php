@@ -6,6 +6,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Ladela\PersonalTranslationsWidgetBundle\Twig\Helper\TranslationsHelper;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
 use Ladela\PersonalTranslationsWidgetBundle\Form\Subscriber\AddTranslatedFieldSubscriber;
 
@@ -16,17 +17,15 @@ class TranslatableFieldType extends AbstractType
   public function __construct(ContainerInterface $container, TranslationsHelper $helper)
   {
     $this->container = $container;
-    $this->helper = $helper;
+    $this->helper    = $helper;
   }
 
   public function buildForm(FormBuilderInterface $builder, array $options)
   {
-    if(! class_exists($options['personal_translation']))
-    {
+    if (!class_exists($options['personal_translation'])) {
       Throw new \InvalidArgumentException(sprintf("Unable to find personal translation class: '%s'", $options['personal_translation']));
     }
-    if(! $options['field'])
-    {
+    if (!$options['fields']) {
       Throw new \InvalidArgumentException("You should provide a field to translate");
     }
 
@@ -34,19 +33,20 @@ class TranslatableFieldType extends AbstractType
     $builder->addEventSubscriber($subscriber);
   }
 
-  public function getDefaultOptions(array $options = array())
+  public function setDefaultOptions(OptionsResolverInterface $resolver)
   {
-    $options['remove_empty'] = true; //Personal Translations without content are removed
-    $options['csrf_protection'] = false;
-    $options['personal_translation'] = false; //Personal Translation class
-    $options['locales'] = $this->helper->getLanguages(); //the locales you wish to edit
-    $options['required_locale'] = array('en'); //the required locales cannot be blank
-    $options['field'] = false; //the field that you wish to translate
-    $options['widget'] = "text"; //change this to another widget like 'texarea' if needed
-    $options['entity_manager_removal'] = true; //auto removes the Personal Translation thru entity manager
-    $options['object'] = null;
-
-    return $options;
+    $resolver->replaceDefaults(array(
+      'remove_empty'           => true,
+      'csrf_protection'        => false,
+      'personal_translation'   => false,
+      'locales'                => $this->helper->getLanguages(),
+      'required_locale'        => array('en'),
+      'fields'                 => false,
+      'widgets'                 => 'text',
+      'entity_manager_removal' => true,
+      'object'                 => null,
+      'required'               => false
+    ));
   }
 
   public function getName()

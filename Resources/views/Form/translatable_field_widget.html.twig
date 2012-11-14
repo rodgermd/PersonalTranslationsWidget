@@ -2,42 +2,30 @@
   {% set translatable_fields = get_entity_translatable_fields(form.parent.vars.data) %}
   {% if translatable_fields is not empty %}
 
-    {% set parentform = form.parent %}
-    {% set unrendered = false %}
-    {% for translatable_field in translatable_fields %}
-      {% if parentform[translatable_field] is defined and parentform[translatable_field].rendered == false %}
-        {% set unrendered = true %}
-      {% endif %}
-    {% endfor %}
+    {% set languages       = get_languages() %}
+    {% set active_language = app.request.locale %}
 
-    {% if unrendered %}
-      {% set languages       = get_languages() %}
-      {% set active_language = app.request.locale %}
-
-      <div class="translations-container">
-        <ul class="nav nav-tabs" id="translations-tabs">
-          {% for key, lang in languages %}
-            <li{% if active_language == key %} class="active"{% endif %}><a href="#translations-tabs-{{ key }}">{{ lang }}</a></li>
-          {% endfor %}
-        </ul>
-        <div class="tab-content">
-          {% for key, lang in languages %}
-            <div class="tab-pane {% if active_language == key %}active{% endif %}" id="translations-tabs-{{ key }}">
-              {% for translatable_field in translatable_fields %}
-                {% if parentform[translatable_field] is defined %}
-                  {% for child in parentform[translatable_field].children %}
-                    {% if key == child.vars.label %}
-                      {{ form_label(parentform[translatable_field]) }}
-                      {{ form_widget(child) }}
-                    {% endif %}
-                  {% endfor %}
-                {% endif %}
-              {% endfor %}
-            </div>
-          {% endfor %}
-          {% for translatable_field in translatable_fields %}{% set a = parentform[translatable_field].setRendered() %}{% endfor %}
-        </div>
+    <div class="translations-container">
+      <ul class="nav nav-tabs translations-tabs enable-tabs">
+        {% for key, lang in languages %}
+          <li{% if active_language == key %} class="active"{% endif %}><a href="#translations-tabs-{{ form.name }}-{{ key }}">{{ lang }}</a></li>
+        {% endfor %}
+      </ul>
+      <div class="tab-content">
+        {% for key, lang in languages %}
+          <div class="tab-pane {% if active_language == key %}active{% endif %}" id="translations-tabs-{{ form.name }}-{{ key }}">
+            {% for translatable_field in translatable_fields %}
+              {% set fieldkey =  translatable_field ~ ':' ~ key %}
+              {% if form[fieldkey] is defined %}
+                <div class="translation-field control-group">
+                  {{ form_label(form[fieldkey], translatable_field) }}
+                  {{ form_widget(form[fieldkey], { 'attr' : { 'class' : 'span4' } }) }}
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endfor %}
       </div>
-    {% endif %}
+    </div>
   {% endif %}
 {% endblock translatable_field_widget %}

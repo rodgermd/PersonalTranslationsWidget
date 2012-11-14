@@ -43,23 +43,27 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
     $availableTranslations = array();
 
     foreach ($data as $Translation) {
-      if (strtolower($Translation->getField()) == strtolower($this->options['field'])) {
-        $availableTranslations[strtolower($Translation->getLocale())] = $Translation;
-      }
+      foreach ($this->options['fields'] as $field)
+        if (strtolower($Translation->getField()) == strtolower($field)) {
+          $availableTranslations[strtolower($Translation->getLocale())] = $Translation;
+        }
     }
 
-    foreach ($this->getFieldNames() as $locale => $fieldName) {
-      if (isset($availableTranslations[strtolower($locale)])) {
-        $Translation = $availableTranslations[strtolower($locale)];
-      } else {
-        $Translation = $this->createPersonalTranslation($locale, $this->options['field'], NULL);
-      }
+    foreach ($this->getFieldNames() as $locale => $fields) {
+      foreach ($fields as $field_key => $field_name) {
+        if (isset($availableTranslations[strtolower($locale)])) {
+          $Translation = $availableTranslations[strtolower($locale)];
+        } else {
+          $Translation = $this->createPersonalTranslation($locale, $field_key, NULL);
+        }
 
-      $collection[] = array(
-        'locale'      => $locale,
-        'fieldName'   => $fieldName,
-        'translation' => $Translation,
-      );
+        $collection[] = array(
+          'locale'      => $locale,
+          'fieldName'   => $field_name,
+          'fieldKey'    => $field_key,
+          'translation' => $Translation,
+        );
+      }
     }
 
     return $collection;
@@ -73,7 +77,8 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
 
     foreach ($this->options['locales'] as $key => $locale) {
       if (is_numeric($key)) $key = $locale;
-      $collection[$key] = $this->options['field'] . ":" . $key;
+      foreach ($this->options['fields'] as $field)
+        $collection[$key][$field] = $field . ":" . $key;
     }
 
     return $collection;
@@ -95,21 +100,24 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
 
     $validator = $this->container->get('validator');
 
-    foreach ($this->getFieldNames() as $locale => $fieldName) {
-      $content = $form->get($fieldName)->getData();
+    foreach ($this->getFieldNames() as $locale => $fieldNames) {
+      foreach ($fieldNames as $form_field_name) {
+        $content = $form->get($form_field_name)->getData();
+        $fieldName = preg_replace('/:.+/', '', $form_field_name);
 
-      if (
-        NULL === $content &&
-        in_array($locale, $this->options['required_locale'])
-      ) {
-        $form->addError(new FormError(sprintf("Field '%s' for locale '%s' cannot be blank", $this->options['field'], $locale)));
-      } else {
-        $Translation = $this->createPersonalTranslation($locale, $fieldName, $content);
-        $errors      = $validator->validate($Translation, array(sprintf("%s:%s", $this->options['field'], $locale)));
+        if (
+          NULL === $content &&
+          in_array($locale, $this->options['required_locale'])
+        ) {
+          $form->addError(new FormError(sprintf("Field '%s' for locale '%s' cannot be blank", $fieldName, $locale)));
+        } else {
+          $Translation = $this->createPersonalTranslation($locale, $fieldName, $content);
+          $errors      = $validator->validate($Translation, array(sprintf("%s:%s", $fieldName, $locale)));
 
-        if (count($errors) > 0) {
-          foreach ($errors as $error) {
-            $form->addError(new FormError($error->getMessage()));
+          if (count($errors) > 0) {
+            foreach ($errors as $error) {
+              $form->addError(new FormError($error->getMessage()));
+            }
           }
         }
       }
@@ -173,12 +181,12 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
     foreach ($this->bindTranslations($data) as $binded) {
       $form->add($this->factory->createNamed(
         $binded['fieldName'],
-        $this->options['widget'],
+        is_string($this->options['widgets']) ? $this->options['widgets'] : @$this->options['widgets'][$binded['fieldKey']],
         $binded['translation']->getContent(),
         array(
-          'label'        => $binded['locale'],
-          'required'     => in_array($binded['locale'], $this->options['required_locale']),
-          'property_path'=> false,
+          'label'         => $binded['locale'],
+          'required'      => in_array($binded['locale'], $this->options['required_locale']),
+          'property_path' => false,
         )
       ));
     }
