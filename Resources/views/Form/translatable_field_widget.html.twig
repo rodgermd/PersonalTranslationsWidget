@@ -18,7 +18,8 @@
               {% set fieldkey =  translatable_field ~ ':' ~ key %}
               {% if form[fieldkey] is defined %}
                 <div class="translation-field control-group">
-                  {{ form_label(form[fieldkey], translatable_field) }}
+                  {{ form[fieldkey].vars.label }}
+                  {{ form_label(form[fieldkey]) }}
                   {{ form_widget(form[fieldkey]) }}
                 </div>
               {% endif %}
