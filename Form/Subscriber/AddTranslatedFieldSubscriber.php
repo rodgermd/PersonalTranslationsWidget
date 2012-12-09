@@ -186,7 +186,7 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
         is_string($this->options['widgets']) ? $this->options['widgets'] : @$this->options['widgets'][$field_key],
         $binded['translation']->getContent(),
         array_merge(array(
-            'label'         => $binded['locale'],
+            'label'         => $binded['fieldKey'] . ':' .$binded['locale'],
             'required'      => in_array($binded['locale'], $this->options['required_locale']),
             'property_path' => false,
           ), (@$this->options['field_options'][$field_key] ?: array()))
