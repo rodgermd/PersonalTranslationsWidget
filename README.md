@@ -47,5 +47,24 @@ class LanguagesGetter implements TranslationsGetterInterface
 or use languages as array:
 ~~~~~~~~~~
 personal_translations_widget:
-  languages: ['en', 'de']
+  languages:
+        en: English
+        es: Spanish
 ~~~~~~~~~~
+
+Sonata Admin sample
+---
+
+~~~
+protected function configureFormFields(FormMapper $form)
+{
+  $subject = $form->getAdmin()->getSubject();
+  $form
+    ->add('translations', 'translatable_field', array(
+    'personal_translation' => 'Site\BaseBundle\Entity\AccommodationTranslation',
+    'fields' => array('title', 'description', 'secondary_text'),
+    'widgets' => array('title' => 'text', 'description' => 'textarea', 'secondary_text' => 'textarea'),
+    'field_options'  => array('secondary_text' => array('attr' => array('class' => 'text-field')))
+  ))
+}
+~~~
