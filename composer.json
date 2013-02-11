@@ -12,7 +12,7 @@
     }
   ],
   "require":{
-    "symfony/framework-bundle":">=2.1.x",
+    "symfony/framework-bundle":">=2.1.*",
     "stof/doctrine-extensions-bundle":"dev-master",
     "twig/extensions":"1.0.*"
   },
