@@ -8,7 +8,7 @@
     <div class="translations-container">
       <ul class="nav nav-tabs translations-tabs enable-tabs">
         {% for key, lang in languages %}
-          <li{% if active_language == key %} class="active"{% endif %}><a href="#translations-tabs-{{ form.name }}-{{ key }}">{{ lang }}</a></li>
+          <li{% if active_language == key %} class="active"{% endif %}><a data-toggle="tab" href="#translations-tabs-{{ form.name }}-{{ key }}">{{ lang }}</a></li>
         {% endfor %}
       </ul>
       <div class="tab-content">
