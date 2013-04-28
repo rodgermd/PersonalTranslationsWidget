@@ -1,4 +1,4 @@
 twig:
   form:
       resources:
-        - "LadelaPersonalTranslationsWidget:Form:translatable_field_widget.html.twig"
+        - "LadelaPersonalTranslationsWidgetBundle:Form:translatable_field_widget.html.twig"
