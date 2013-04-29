@@ -5,21 +5,21 @@
     {% set languages       = get_languages() %}
     {% set active_language = app.request.locale %}
 
-    <div class="translations-container">
+    <div class="translations-container controls">
       <ul class="nav nav-tabs translations-tabs enable-tabs">
         {% for key, lang in languages %}
-          <li{% if active_language == key %} class="active"{% endif %}><a data-toggle="tab" href="#translations-tabs-{{ form.name }}-{{ key }}">{{ lang }}</a></li>
+          <li{% if active_language == key %} class="active"{% endif %}><a data-toggle="tab" href="#translations-tabs-{{ form.vars.name }}-{{ key }}">{{ lang }}</a></li>
         {% endfor %}
       </ul>
       <div class="tab-content">
         {% for key, lang in languages %}
-          <div class="tab-pane {% if active_language == key %}active{% endif %}" id="translations-tabs-{{ form.name }}-{{ key }}">
+          <div class="tab-pane {% if active_language == key %}active{% endif %}" id="translations-tabs-{{ form.vars.name }}-{{ key }}">
             {% for translatable_field in translatable_fields %}
               {% set fieldkey =  translatable_field ~ ':' ~ key %}
               {% if form[fieldkey] is defined %}
                 <div class="translation-field control-group">
                   {{ form_label(form[fieldkey]) }}
-                  {{ form_widget(form[fieldkey]) }}
+                  <div class="controls">{{ form_widget(form[fieldkey]) }}</div>
                 </div>
               {% endif %}
             {% endfor %}

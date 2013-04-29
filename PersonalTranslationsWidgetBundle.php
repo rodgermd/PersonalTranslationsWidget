@@ -13,5 +13,6 @@ class PersonalTranslationsWidgetBundle extends Bundle
     parent::build($container);
 
     $container->addCompilerPass(new GedmoTranslationsPass());
+    $container->addCompilerPass(new TwigResourcePass());
   }
 }

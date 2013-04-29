@@ -14,7 +14,7 @@ class TwigResourcePass implements CompilerPassInterface
 {
   public function process(ContainerBuilder $container)
   {
-    $res = "::translatable_field_widget.html.twig";
+    $res = "PersonalTranslationsWidgetBundle:Form:translatable_field_widget.html.twig";
     if (!$container->hasParameter('twig.form.resources'))
     {
       $container->setParameter('twig.form.resources', array($res));

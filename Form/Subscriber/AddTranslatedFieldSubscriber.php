@@ -3,6 +3,7 @@
 namespace Ladela\PersonalTranslationsWidgetBundle\Form\Subscriber;
 
 use Symfony\Component\Form\Event\DataEvent;
+use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Form\FormEvents;
@@ -51,7 +52,7 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
 
     foreach ($this->getFieldNames() as $locale => $fields) {
       foreach ($fields as $field_key => $field_name) {
-        if (isset($availableTranslations[strtolower($locale)])) {
+        if (isset($availableTranslations[strtolower($locale)]) && isset($availableTranslations[strtolower($locale)][$field_key])) {
           $Translation = $availableTranslations[strtolower($locale)][$field_key];
         } else {
           $Translation = $this->createPersonalTranslation($locale, $field_key, NULL);
@@ -92,27 +93,27 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
     return new $className($locale, $field, $content);
   }
 
-  public function bindNormData(DataEvent $event)
+  public function bindNormData(FormEvent $event)
   {
     //Validates the submitted form
-    $data = $event->getData();
     $form = $event->getForm();
 
     $validator = $this->container->get('validator');
 
     foreach ($this->getFieldNames() as $locale => $fieldNames) {
       foreach ($fieldNames as $form_field_name) {
-        $content = $form->get($form_field_name)->getData();
+        $content   = $form->get($form_field_name)->getData();
         $fieldName = preg_replace('/:.+/', '', $form_field_name);
 
         if (
           NULL === $content &&
-          in_array($locale, $this->options['required_locale'])
+          in_array($locale, $this->options['required_locale']) &&
+          @$this->options[$fieldName]['required']
         ) {
           $form->addError(new FormError(sprintf("Field '%s' for locale '%s' cannot be blank", $fieldName, $locale)));
         } else {
-          $Translation = $this->createPersonalTranslation($locale, $fieldName, $content);
-          $errors      = $validator->validate($Translation, array(sprintf("%s:%s", $fieldName, $locale)));
+          $translation = $this->createPersonalTranslation($locale, $fieldName, $content);
+          $errors      = $validator->validate($translation, array(sprintf("%s:%s", $fieldName, $locale)));
 
           if (count($errors) > 0) {
             foreach ($errors as $error) {
@@ -124,7 +125,7 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
     }
   }
 
-  public function postBind(DataEvent $event)
+  public function postBind(FormEvent $event)
   {
     //if the form passed the validattion then set the corresponding Personal Translations
     $form = $event->getForm();
@@ -132,38 +133,38 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
 
     $entity = $form->getParent()->getData();
 
-    foreach ($this->bindTranslations($data) as $binded) {
-      $content     = $form->get($binded['fieldName'])->getData();
-      $Translation = $binded['translation'];
+    foreach ($this->bindTranslations($data) as $bound) {
+      $content     = $form->get($bound['fieldName'])->getData();
+      $translation = $bound['translation'];
 
       // set the submitted content
-      $Translation->setContent($content);
+      $translation->setContent($content);
 
       //test if its new
-      if ($Translation->getId()) {
+      if ($translation->getId()) {
         //Delete the Personal Translation if its empty
         if (
           NULL === $content &&
           $this->options['remove_empty']
         ) {
-          $data->removeElement($Translation);
+          $data->removeElement($translation);
 
           if ($this->options['entity_manager_removal']) {
-            $this->container->get('doctrine.orm.entity_manager')->remove($Translation);
+            $this->container->get('doctrine.orm.entity_manager')->remove($translation);
           }
         }
       } elseif (NULL !== $content) {
         //add it to entity
-        $entity->addTranslation($Translation);
+        $entity->addTranslation($translation);
 
-        if (!$data->contains($Translation)) {
-          $data->add($Translation);
+        if (!$data->contains($translation)) {
+          $data->add($translation);
         }
       }
     }
   }
 
-  public function preSetData(DataEvent $event)
+  public function preSetData(FormEvent $event)
   {
     //Builds the custom 'form' based on the provided locales
     $data = $event->getData();
@@ -178,19 +179,19 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
       return;
     }
 
-    foreach ($this->bindTranslations($data) as $binded) {
-      $field_key = $binded['fieldKey'];
+    foreach ($this->bindTranslations($data) as $bound) {
+      $field_key = $bound['fieldKey'];
 
       $form->add($this->factory->createNamed(
-        $binded['fieldName'],
+        $bound['fieldName'],
         is_string($this->options['widgets']) ? $this->options['widgets'] : @$this->options['widgets'][$field_key],
-        $binded['translation']->getContent(),
+        $bound['translation']->getContent(),
         array_merge(array(
-            'label'         => $binded['fieldKey'] . ':' .$binded['locale'],
-            'required'      => in_array($binded['locale'], $this->options['required_locale']),
-            'property_path' => false,
-          ), (@$this->options['field_options'][$field_key] ?: array()))
-        ));
+          'label'    => $bound['fieldKey'] . ':' . $bound['locale'],
+          'required' => in_array($bound['locale'], $this->options['required_locale']),
+          'mapped'   => false,
+        ), (@$this->options['field_options'][$field_key] ? : array()))
+      ));
     }
   }
 }
