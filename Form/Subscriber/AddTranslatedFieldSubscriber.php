@@ -44,26 +44,26 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
     $collection            = array();
     $availableTranslations = array();
 
-    foreach ($data as $Translation) {
+    foreach ($data as $translation) {
       foreach ($this->options['fields'] as $field)
-        if (strtolower($Translation->getField()) == strtolower($field)) {
-          $availableTranslations[strtolower($Translation->getLocale())][$field] = $Translation;
+        if (strtolower($translation->getField()) == strtolower($field)) {
+          $availableTranslations[strtolower($translation->getLocale())][$field] = $translation;
         }
     }
 
     foreach ($this->getFieldNames() as $locale => $fields) {
       foreach ($fields as $field_key => $field_name) {
         if (isset($availableTranslations[strtolower($locale)]) && isset($availableTranslations[strtolower($locale)][$field_key])) {
-          $Translation = $availableTranslations[strtolower($locale)][$field_key];
+          $translation = $availableTranslations[strtolower($locale)][$field_key];
         } else {
-          $Translation = $this->createPersonalTranslation($locale, $field_key, NULL);
+          $translation = $this->createPersonalTranslation($locale, $field_key, NULL);
         }
 
         $collection[] = array(
           'locale'      => $locale,
           'fieldName'   => $field_name,
           'fieldKey'    => $field_key,
-          'translation' => $Translation,
+          'translation' => $translation,
         );
       }
     }
@@ -196,7 +196,5 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
         ), (@$this->options['field_options'][$field_key] ? : array()))
       ));
     }
-
-    $a = 1;
   }
 }
