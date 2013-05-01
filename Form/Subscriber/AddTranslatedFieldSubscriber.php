@@ -9,6 +9,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\FormError;
+use Symfony\Component\Validator\Validator;
 
 class AddTranslatedFieldSubscriber implements EventSubscriberInterface
 {
@@ -98,6 +99,7 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
     //Validates the submitted form
     $form = $event->getForm();
 
+    /** @var Validator $validator */
     $validator = $this->container->get('validator');
 
     foreach ($this->getFieldNames() as $locale => $fieldNames) {
@@ -108,14 +110,14 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
         if (
           NULL === $content &&
           in_array($locale, $this->options['required_locale']) &&
-          @$this->options[$fieldName]['required']
+          @$this->options['field_options'][$fieldName]['required']
         ) {
           $form->addError(new FormError(sprintf("Field '%s' for locale '%s' cannot be blank", $fieldName, $locale)));
         } else {
           $translation = $this->createPersonalTranslation($locale, $fieldName, $content);
-          $errors      = $validator->validate($translation, array(sprintf("%s:%s", $fieldName, $locale)));
+          $errors      = $validator->validate($translation);
 
-          if (count($errors) > 0) {
+          if ($errors->count()) {
             foreach ($errors as $error) {
               $form->addError(new FormError($error->getMessage()));
             }
@@ -127,7 +129,7 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
 
   public function postBind(FormEvent $event)
   {
-    //if the form passed the validattion then set the corresponding Personal Translations
+    //if the form passed the validation then set the corresponding Personal Translations
     $form = $event->getForm();
     $data = $form->getData();
 
@@ -190,8 +192,11 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
           'label'    => $bound['fieldKey'] . ':' . $bound['locale'],
           'required' => in_array($bound['locale'], $this->options['required_locale']),
           'mapped'   => false,
+          'property_path' => 'translation'
         ), (@$this->options['field_options'][$field_key] ? : array()))
       ));
     }
+
+    $a = 1;
   }
 }
