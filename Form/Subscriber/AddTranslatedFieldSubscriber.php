@@ -192,7 +192,8 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
           'label'    => $bound['fieldKey'] . ':' . $bound['locale'],
           'required' => in_array($bound['locale'], $this->options['required_locale']),
           'mapped'   => false,
-          'property_path' => 'translation'
+          'property_path' => 'translation',
+          'auto_initialize' => false,
         ), (@$this->options['field_options'][$field_key] ? : array()))
       ));
     }
