@@ -13,7 +13,7 @@
   ],
   "require":{
     "symfony/framework-bundle":">=2.3.0",
-    "stof/doctrine-extensions-bundle":"dev-master",
+    "stof/doctrine-extensions-bundle":"*",
     "twig/extensions":"1.0.*"
   },
   "autoload":{
