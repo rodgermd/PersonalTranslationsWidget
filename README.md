@@ -25,13 +25,9 @@ to
 Languages configuration
 ---------
 
-config.yml
-~~~~~~~~~~
-
 Getter service
-~~~~
 
-The service should have a tag *languages_getter* and return array of languages: code => name
+The service should have a tag *languages_getter* and return array of languages: code = > name
 
 
 ```
@@ -52,6 +48,7 @@ class LanguagesGetter implements TranslationsGetterInterface
 ```
 
 or use languages as array:
+
 ~~~~~~~~~~
 personal_translations_widget:
   languages:
