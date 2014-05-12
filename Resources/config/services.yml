@@ -8,8 +8,6 @@ services:
   twig.translations.ladela_translations_helper:
     class: Ladela\PersonalTranslationsWidgetBundle\Twig\Helper\TranslationsHelper
     arguments: [@gedmo.listener.translatable, @doctrine.orm.default_entity_manager]
-    calls:
-      - [setContainer, [@service_container]]
 
   twig.translations.ladela_translations_extension:
     class: Ladela\PersonalTranslationsWidgetBundle\Twig\TranslationsTwigExtension

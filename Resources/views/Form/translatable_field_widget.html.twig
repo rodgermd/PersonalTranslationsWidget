@@ -5,6 +5,8 @@
     {% set languages       = get_languages() %}
     {% set active_language = app.request.locale %}
 
+    {{ dump(languages) }}
+
     <div class="translations-container controls">
       <ul class="nav nav-tabs translations-tabs enable-tabs">
         {% for key, lang in languages %}

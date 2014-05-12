@@ -5,16 +5,13 @@ namespace Ladela\PersonalTranslationsWidgetBundle\Twig\Helper;
 use Doctrine\ORM\EntityManager;
 use Gedmo\Translatable\TranslatableListener;
 use Ladela\PersonalTranslationsWidgetBundle\TranslationsGetter\TranslationsGetterInterface;
-use Symfony\Component\DependencyInjection\ContainerAware;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class TranslationsHelper
  *
  * @package Ladela\PersonalTranslationsWidgetBundle\Twig\Helper
  */
-class TranslationsHelper implements ContainerAwareInterface
+class TranslationsHelper
 {
     /** @var TranslatableListener */
     protected $gedmo_translatable_listener;
@@ -36,23 +33,23 @@ class TranslationsHelper implements ContainerAwareInterface
     }
 
     /**
-     * Sets container
+     * Sets languages getter
      *
-     * @param ContainerInterface $container
+     * @param TranslationsGetterInterface $getter
      */
-    public function setContainer(ContainerInterface $container = null)
+    public function setLanguagesGetter(TranslationsGetterInterface $getter)
     {
-        $languages = $container->getParameter('ladela_personal_translations.languages');
-        $getter    = $container->getParameter('ladela_personal_translations.getter');
+        $this->languages = $getter->getLanguages();
+    }
 
-        if (!empty($languages)) {
-            $this->languages = $languages;
-        } elseif (!empty($getter)) {
-            $getter = $container->get($getter);
-            if ($getter instanceof TranslationsGetterInterface) {
-                $this->languages = $getter->getLanguages();
-            }
-        }
+    /**
+     * Sets languages
+     *
+     * @param array $languages
+     */
+    public function setLanguages(array $languages)
+    {
+        $this->languages = $languages;
     }
 
     /**
