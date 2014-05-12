@@ -27,10 +27,17 @@ Languages configuration
 
 config.yml
 ~~~~~~~~~~
-personal_translations_widget:
-  getter: your-languages-getter-service-id
-~~~~~~~~~~
-  the service class must implement TranslationsGetterInterface and return array of language-key => label pairs
+
+Getter service
+~~~~
+
+The service should have a tag *languages_getter* and return array of languages: code => name
+
+
+```
+  tags:
+    - { name: languages_getter }
+```
 
 ```
 use Ladela\PersonalTranslationsWidgetBundle\TranslationsGetter\TranslationsGetterInterface;

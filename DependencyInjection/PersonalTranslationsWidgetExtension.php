@@ -25,7 +25,6 @@ class PersonalTranslationsWidgetExtension extends Extension
     $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
     $loader->load('services.yml');
 
-    $container->setParameter('ladela_personal_translations.getter', $config['getter']);
     $container->setParameter('ladela_personal_translations.languages', $config['languages']);
   }
 
