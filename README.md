@@ -11,14 +11,14 @@ Add to AppKernel.php:
 new Ladela\PersonalTranslationsWidgetBundle\PersonalTranslationsWidgetBundle(),
 ```
 
-Copy or symlink file:
+To edit template, copy this file:
 ~~~~~~~~~~~~~~~~~~~~
 Resources/views/Form/translatable_field_widget.html.twig located in the bundle directory
 ~~~~
 
 to
 ~~~~
-/app/Resources/views/translatable_field_widget.html.twig locate din the project root
+app/Resources/PersonalTranslationsWidgetBundle/views/Form/translatable_field_widget.html.twig located in the project root
 ~~~~~~~~~~~~~~~~~~~~
 
 
