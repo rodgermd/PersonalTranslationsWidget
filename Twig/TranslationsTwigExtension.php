@@ -58,10 +58,11 @@ class TranslationsTwigExtension extends Twig_Extension
     public function getTranslationFields(FormView $form)
     {
         $fields = array();
-        foreach(array_keys($form->children) as $key) {
+        foreach (array_keys($form->children) as $key) {
             preg_match('#(?<key>.*):(.*)#', $key, $matches);
             $fields[] = $matches['key'];
         }
+
         return array_unique($fields);
     }
 
@@ -74,6 +75,5 @@ class TranslationsTwigExtension extends Twig_Extension
     {
         return 'translations_twig_extension';
     }
-
 
 }

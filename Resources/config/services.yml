@@ -14,4 +14,3 @@ services:
     arguments: [@twig.translations.ladela_translations_helper]
     tags:
       - { name: twig.extension }
-

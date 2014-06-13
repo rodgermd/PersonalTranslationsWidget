@@ -2,7 +2,6 @@
 
 namespace Ladela\PersonalTranslationsWidgetBundle\Form\Subscriber;
 
-use Symfony\Component\Form\Event\DataEvent;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
