@@ -2,6 +2,8 @@
 
 namespace Ladela\PersonalTranslationsWidgetBundle\Form\Subscriber;
 
+use Doctrine\ORM\EntityManager;
+use Ladela\PersonalTranslationsWidgetBundle\Entity\AbstractTranslation;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -15,12 +17,15 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
     private $factory;
     private $options;
     private $container;
+    /** @var EntityManager */
+    private $em;
 
     public function __construct(FormFactoryInterface $factory, ContainerInterface $container, Array $options)
     {
         $this->factory   = $factory;
         $this->options   = $options;
         $this->container = $container;
+        $this->em        = $container->get('doctrine.orm.default_entity_manager');
     }
 
     public static function getSubscribedEvents()
@@ -78,9 +83,12 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
         $collection = array();
 
         foreach ($this->options['locales'] as $key => $locale) {
-            if (is_numeric($key)) $key = $locale;
-            foreach ($this->options['fields'] as $field)
+            if (is_numeric($key)) {
+                $key = $locale;
+            }
+            foreach ($this->options['fields'] as $field) {
                 $collection[$key][$field] = $field . ":" . $key;
+            }
         }
 
         return $collection;
@@ -108,9 +116,9 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
                 $fieldName = preg_replace('/:.+/', '', $form_field_name);
 
                 if (
-                  null === $content &&
-                  in_array($locale, $this->options['required_locale']) &&
-                  @$this->options['field_options'][$fieldName]['required']
+                    null === $content &&
+                    in_array($locale, $this->options['required_locale']) &&
+                    @$this->options['field_options'][$fieldName]['required']
                 ) {
                     $form->addError(new FormError(sprintf("Field '%s' for locale '%s' cannot be blank", $fieldName, $locale)));
                 } else {
@@ -136,7 +144,9 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
         $entity = $form->getParent()->getData();
 
         foreach ($this->bindTranslations($data) as $bound) {
-            $content     = $form->get($bound['fieldName'])->getData();
+            $content = $form->get($bound['fieldName'])->getData();
+
+            /** @var AbstractTranslation $translation */
             $translation = $bound['translation'];
 
             // set the submitted content
@@ -145,17 +155,14 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
             //test if its new
             if ($translation->getId()) {
                 //Delete the Personal Translation if its empty
-                if (
-                  null === $content &&
-                  $this->options['remove_empty']
-                ) {
+                if (null === $content && $this->options['remove_empty']) {
                     $data->removeElement($translation);
 
                     if ($this->options['entity_manager_removal']) {
-                        $this->container->get('doctrine.orm.entity_manager')->remove($translation);
+                        $this->em->remove($translation);
                     }
                 }
-            } elseif (null !== $content) {
+            } elseif (null !== $content && $entity) {
                 //add it to entity
                 $entity->addTranslation($translation);
 
@@ -178,7 +185,17 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
         // or fetched with Doctrine). This if statement let's us skip right
         // over the null condition.
         if (null === $data) {
-            return;
+            $property   = $form->getPropertyPath()->getElement(0);
+            $parentData = $form->getParent()->getConfig()->getEmptyData();
+            $method     = 'get' . ucfirst($property);
+            if (is_object($parentData) && method_exists($parentData, $method)) {
+                $data = $parentData->$method();
+                $event->setData($data);
+            }
+        }
+
+        if (null === $data) {
+            return null;
         }
 
         foreach ($this->bindTranslations($data) as $bound) {

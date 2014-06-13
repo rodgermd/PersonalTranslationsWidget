@@ -8,12 +8,12 @@
     <div class="translations-container controls">
       <ul class="nav nav-tabs translations-tabs enable-tabs">
         {% for key, lang in languages %}
-          <li{% if active_language == key %} class="active"{% endif %}><a data-toggle="tab" href="#translations-tabs-{{ form.vars.name }}-{{ key }}">{{ lang }}</a></li>
+          <li{% if active_language == key %} class="active"{% endif %}><a data-toggle="tab" href="#translations-tabs-{{ form.vars.id }}-{{ key }}">{{ lang }}</a></li>
         {% endfor %}
       </ul>
       <div class="tab-content">
         {% for key, lang in languages %}
-          <div class="tab-pane {% if active_language == key %}active{% endif %}" id="translations-tabs-{{ form.vars.name }}-{{ key }}">
+          <div class="tab-pane {% if active_language == key %}active{% endif %}" id="translations-tabs-{{ form.vars.id }}-{{ key }}">
             {% for translatable_field in form | translation_fields %}
               {% if translatable_field in translatable_fields %}
                 {% set fieldkey =  translatable_field ~ ':' ~ key %}
