@@ -14,40 +14,51 @@ class TranslatableFieldType extends AbstractType
 {
     protected $container, $helper;
 
-    public function __construct(ContainerInterface $container, TranslationsHelper $helper)
+    /**
+     * Constructor
+     *
+     * @param AddTranslatedFieldSubscriber $subscriber
+     * @param TranslationsHelper           $helper
+     */
+    public function __construct(AddTranslatedFieldSubscriber $subscriber, TranslationsHelper $helper)
     {
-        $this->container = $container;
-        $this->helper    = $helper;
+        $this->subscriber = $subscriber;
+        $this->helper = $helper;
     }
 
+    /**
+     * Builds form
+     *
+     * @param FormBuilderInterface $builder
+     * @param array                $options
+     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        if (!class_exists($options['personal_translation'])) {
-            throw new \InvalidArgumentException(sprintf("Unable to find personal translation class: '%s'", $options['personal_translation']));
-        }
         if (!$options['fields']) {
             Throw new \InvalidArgumentException("You should provide a field to translate");
         }
 
-        $subscriber = new AddTranslatedFieldSubscriber($builder->getFormFactory(), $this->container, $options);
-        $builder->addEventSubscriber($subscriber);
+        $builder->addEventSubscriber($this->subscriber);
     }
 
+    /**
+     * @param OptionsResolverInterface $resolver
+     */
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
-        $resolver->replaceDefaults(
+        $resolver->setDefaults(
             array(
-                'remove_empty'           => true,
-                'csrf_protection'        => false,
-                'personal_translation'   => false,
-                'locales'                => $this->helper->getLanguages(),
-                'required_locale'        => array('en'),
-                'fields'                 => false,
-                'widgets'                => 'text',
-                'field_options'          => array(),
+                'remove_empty' => true,
+                'csrf_protection' => false,
+                'personal_translation' => false,
+                'locales' => $this->helper->getLanguages(),
+                'required_locale' => array('en'),
+                'fields' => false,
+                'widgets' => 'text',
+                'field_options' => array(),
                 'entity_manager_removal' => true,
-                'object'                 => null,
-                'required'               => false
+                'object' => null,
+                'required' => false
             )
         );
     }

@@ -3,52 +3,83 @@
 namespace Ladela\PersonalTranslationsWidgetBundle\Form\Subscriber;
 
 use Doctrine\ORM\EntityManager;
+use Gedmo\Translatable\Entity\MappedSuperclass\AbstractPersonalTranslation;
 use Ladela\PersonalTranslationsWidgetBundle\Entity\AbstractTranslation;
+use Ladela\PersonalTranslationsWidgetBundle\Entity\TranslatedPersonalEntityInterface;
+use Ladela\PersonalTranslationsWidgetBundle\Twig\Helper\TranslationsHelper;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\FormError;
-use Symfony\Component\Validator\Validator;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class AddTranslatedFieldSubscriber implements EventSubscriberInterface
 {
+    /** @var FormFactoryInterface */
     private $factory;
+    /** @var array */
     private $options;
-    private $container;
+    /** @var ValidatorInterface */
+    private $validator;
     /** @var EntityManager */
     private $em;
+    /** @var TranslationsHelper */
+    protected $translationsHelper;
 
-    public function __construct(FormFactoryInterface $factory, ContainerInterface $container, Array $options)
-    {
-        $this->factory   = $factory;
-        $this->options   = $options;
-        $this->container = $container;
-        $this->em        = $container->get('doctrine.orm.default_entity_manager');
+    /**
+     * Constructor
+     *
+     * @param FormFactoryInterface $factory
+     * @param EntityManager        $em
+     * @param ValidatorInterface   $validator
+     * @param TranslationsHelper   $translationsHelper
+     */
+    public function __construct(
+        FormFactoryInterface $factory,
+        EntityManager $em,
+        ValidatorInterface $validator,
+        TranslationsHelper $translationsHelper
+    ) {
+        $this->factory = $factory;
+        $this->em = $em;
+        $this->validator = $validator;
+        $this->translationsHelper = $translationsHelper;
     }
 
+    /**
+     * @return array
+     */
     public static function getSubscribedEvents()
     {
         // Tells the dispatcher that we want to listen on the form.pre_set_data
         // , form.post_data and form.bind_norm_data event
         return array(
             FormEvents::PRE_SET_DATA => 'preSetData',
-            FormEvents::POST_SUBMIT  => 'postBind',
-            FormEvents::SUBMIT       => 'bindNormData'
+            FormEvents::POST_SUBMIT => 'postBind',
+            FormEvents::SUBMIT => 'bindNormData'
         );
     }
 
+    /**
+     * Binds translations
+     *
+     * @param $data
+     *
+     * @return array
+     */
     private function bindTranslations($data)
     {
         //Small helper function to extract all Personal Translation
         //from the Entity for the field we are interested in
         //and combines it with the fields
 
-        $collection            = array();
+        $collection = array();
         $availableTranslations = array();
 
         foreach ($data as $translation) {
+            /** @var AbstractPersonalTranslation $translation */
             foreach ($this->options['fields'] as $field) {
                 if (strtolower($translation->getField()) == strtolower($field)) {
                     $availableTranslations[strtolower($translation->getLocale())][$field] = $translation;
@@ -58,16 +89,19 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
 
         foreach ($this->getFieldNames() as $locale => $fields) {
             foreach ($fields as $field_key => $field_name) {
-                if (isset($availableTranslations[strtolower($locale)]) && isset($availableTranslations[strtolower($locale)][$field_key])) {
+                if (isset($availableTranslations[strtolower($locale)]) && isset($availableTranslations[strtolower(
+                            $locale
+                        )][$field_key])
+                ) {
                     $translation = $availableTranslations[strtolower($locale)][$field_key];
                 } else {
                     $translation = $this->createPersonalTranslation($locale, $field_key, null);
                 }
 
                 $collection[] = array(
-                    'locale'      => $locale,
-                    'fieldName'   => $field_name,
-                    'fieldKey'    => $field_key,
+                    'locale' => $locale,
+                    'fieldName' => $field_name,
+                    'fieldKey' => $field_key,
                     'translation' => $translation,
                 );
             }
@@ -76,13 +110,18 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
         return $collection;
     }
 
+    /**
+     * Gets field names
+     *
+     * @return array
+     */
     private function getFieldNames()
     {
         //helper function to generate all field names in format:
         // '<locale>' => '<field>|<locale>'
         $collection = array();
 
-        foreach ($this->options['locales'] as $key => $locale) {
+        foreach ($this->translationsHelper->getLanguages() as $key => $locale) {
             if (is_numeric($key)) {
                 $key = $locale;
             }
@@ -94,6 +133,15 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
         return $collection;
     }
 
+    /**
+     * Creates new translation
+     *
+     * @param string $locale
+     * @param string $field
+     * @param string $content
+     *
+     * @return AbstractPersonalTranslation
+     */
     private function createPersonalTranslation($locale, $field, $content)
     {
         //creates a new Personal Translation
@@ -102,17 +150,20 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
         return new $className($locale, $field, $content);
     }
 
+    /**
+     * On bind data
+     *
+     * @param FormEvent $event
+     */
     public function bindNormData(FormEvent $event)
     {
         //Validates the submitted form
         $form = $event->getForm();
-
-        /** @var Validator $validator */
-        $validator = $this->container->get('validator');
+        $this->options = $form->getConfig()->getOptions();
 
         foreach ($this->getFieldNames() as $locale => $fieldNames) {
             foreach ($fieldNames as $form_field_name) {
-                $content   = $form->get($form_field_name)->getData();
+                $content = $form->get($form_field_name)->getData();
                 $fieldName = preg_replace('/:.+/', '', $form_field_name);
 
                 if (
@@ -120,10 +171,12 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
                     in_array($locale, $this->options['required_locale']) &&
                     @$this->options['field_options'][$fieldName]['required']
                 ) {
-                    $form->addError(new FormError(sprintf("Field '%s' for locale '%s' cannot be blank", $fieldName, $locale)));
+                    $form->addError(
+                        new FormError(sprintf("Field '%s' for locale '%s' cannot be blank", $fieldName, $locale))
+                    );
                 } else {
                     $translation = $this->createPersonalTranslation($locale, $fieldName, $content);
-                    $errors      = $validator->validate($translation);
+                    $errors = $this->validator->validate($translation);
 
                     if ($errors->count()) {
                         foreach ($errors as $error) {
@@ -135,11 +188,17 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
         }
     }
 
+    /**
+     * On submit
+     *
+     * @param FormEvent $event
+     */
     public function postBind(FormEvent $event)
     {
         //if the form passed the validation then set the corresponding Personal Translations
         $form = $event->getForm();
         $data = $form->getData();
+        $this->options = $form->getConfig()->getOptions();
 
         $entity = $form->getParent()->getData();
 
@@ -171,32 +230,21 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
                 }
             }
         }
+
+        $this->updateFields($entity);
     }
 
+    /**
+     * On pre set data
+     *
+     * @param FormEvent $event
+     */
     public function preSetData(FormEvent $event)
     {
         //Builds the custom 'form' based on the provided locales
         $data = $event->getData();
         $form = $event->getForm();
-
-        // During form creation setData() is called with null as an argument
-        // by the FormBuilder constructor. We're only concerned with when
-        // setData is called with an actual Entity object in it (whether new,
-        // or fetched with Doctrine). This if statement let's us skip right
-        // over the null condition.
-        if (null === $data) {
-            $property   = $form->getPropertyPath()->getElement(0);
-            $parentData = $form->getParent()->getConfig()->getEmptyData();
-            $method     = 'get' . ucfirst($property);
-            if (is_object($parentData) && method_exists($parentData, $method)) {
-                $data = $parentData->$method();
-                $event->setData($data);
-            }
-        }
-
-        if (null === $data) {
-            return null;
-        }
+        $this->options = $form->getConfig()->getOptions();
 
         foreach ($this->bindTranslations($data) as $bound) {
             $field_key = $bound['fieldKey'];
@@ -204,20 +252,43 @@ class AddTranslatedFieldSubscriber implements EventSubscriberInterface
             $form->add(
                 $this->factory->createNamed(
                     $bound['fieldName'],
-                    is_string($this->options['widgets']) ? $this->options['widgets'] : @$this->options['widgets'][$field_key],
+                    is_string(
+                        $this->options['widgets']
+                    ) ? $this->options['widgets'] : @$this->options['widgets'][$field_key],
                     $bound['translation']->getContent(),
                     array_merge(
                         array(
-                            'label'           => $bound['fieldKey'] . ':' . $bound['locale'],
-                            'required'        => in_array($bound['locale'], $this->options['required_locale']),
-                            'mapped'          => false,
-                            'property_path'   => 'translation',
+                            'label' => $bound['fieldKey'] . ':' . $bound['locale'],
+                            'required' => in_array($bound['locale'], $this->options['required_locale']),
+                            'mapped' => false,
+                            'property_path' => 'translation',
                             'auto_initialize' => false,
                         ),
-                        (@$this->options['field_options'][$field_key] ? : array())
+                        (@$this->options['field_options'][$field_key] ?: array())
                     )
                 )
             );
+        }
+    }
+
+    /**
+     * Updates base fields using translations
+     *
+     * @param TranslatedPersonalEntityInterface $entity
+     */
+    protected function updateFields(TranslatedPersonalEntityInterface $entity)
+    {
+        $entity->setTranslatableLocale($this->translationsHelper->getDefaultLocale());
+        foreach($entity->getTranslations() as $translation)
+        {
+            /** @var AbstractPersonalTranslation $translation */
+            if ($translation->getLocale() == $entity->getLocale())
+            {
+                $method = 'set' . ucfirst($translation->getField());
+                if (method_exists($entity, $method)) {
+                    call_user_func(array($entity, $method), $translation->getContent());
+                }
+            }
         }
     }
 }

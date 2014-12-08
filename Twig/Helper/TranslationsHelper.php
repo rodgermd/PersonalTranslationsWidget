@@ -14,7 +14,7 @@ use Ladela\PersonalTranslationsWidgetBundle\TranslationsGetter\TranslationsGette
 class TranslationsHelper
 {
     /** @var TranslatableListener */
-    protected $gedmo_translatable_listener;
+    protected $gedmoTranslatableListener;
     /** @var EntityManager */
     protected $em;
     /** @var array */
@@ -23,13 +23,13 @@ class TranslationsHelper
     /**
      * Object constructor
      *
-     * @param TranslatableListener $gedmo_translatable_listener
+     * @param TranslatableListener $gedmoTranslatableListener
      * @param EntityManager        $em
      */
-    public function __construct(TranslatableListener $gedmo_translatable_listener, EntityManager $em)
+    public function __construct(TranslatableListener $gedmoTranslatableListener, EntityManager $em)
     {
-        $this->gedmo_translatable_listener = $gedmo_translatable_listener;
-        $this->em                          = $em;
+        $this->gedmoTranslatableListener = $gedmoTranslatableListener;
+        $this->em = $em;
     }
 
     /**
@@ -62,7 +62,7 @@ class TranslationsHelper
      */
     public function getEntityTranslatableFields($entity)
     {
-        $translatable_config = $this->gedmo_translatable_listener->getConfiguration($this->em, get_class($entity));
+        $translatable_config = $this->gedmoTranslatableListener->getConfiguration($this->em, get_class($entity));
 
         $fields = @$translatable_config['fields'];
         if (!is_array($fields) || count($fields) == 0) {
@@ -80,5 +80,15 @@ class TranslationsHelper
     public function getLanguages()
     {
         return $this->languages;
+    }
+
+    /**
+     * Gets Gedmo default locale
+     *
+     * @return string
+     */
+    public function getDefaultLocale()
+    {
+        return $this->gedmoTranslatableListener->getDefaultLocale();
     }
 }
