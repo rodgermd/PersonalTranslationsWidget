@@ -1,14 +1,25 @@
 services:
-  form.type.translated_field:
-    class: Ladela\PersonalTranslationsWidgetBundle\Form\Type\TranslatableFieldType
+
+  ### FORM TYPES
+  form.type.translated_field_group:
+    class: Ladela\PersonalTranslationsWidgetBundle\Form\Type\TranslatableFieldGroupType
+    arguments: [@form.subscriber.translated_field_group, @twig.translations.ladela_translations_helper]
     tags:
       - { name: form.type, alias: translatable_field }
-    arguments: [@form.subscriber.translated_field, @twig.translations.ladela_translations_helper]
 
-  form.subscriber.translated_field:
-      class: Ladela\PersonalTranslationsWidgetBundle\Form\Subscriber\AddTranslatedFieldSubscriber
+  form.type.translated_field:
+    class: Ladela\PersonalTranslationsWidgetBundle\Form\Type\TranslatedFieldType
+    arguments: [@twig.translations.ladela_translations_helper, @doctrine.orm.default_entity_manager]
+    scope: prototype
+    tags:
+      - { name: form.type, alias: translated_field_single }
+
+  ### SUBSCRIBERS
+  form.subscriber.translated_field_group:
+      class: Ladela\PersonalTranslationsWidgetBundle\Form\Subscriber\AddTranslatedFieldGroupSubscriber
       arguments: [@form.factory, @doctrine.orm.default_entity_manager, @validator, @twig.translations.ladela_translations_helper]
 
+  ### TWIGS
   twig.translations.ladela_translations_helper:
     class: Ladela\PersonalTranslationsWidgetBundle\Twig\Helper\TranslationsHelper
     arguments: [@gedmo.listener.translatable, @doctrine.orm.default_entity_manager]

@@ -49,4 +49,11 @@ interface TranslatedPersonalEntityInterface
      * @return $this
      */
     public function addTranslation(AbstractPersonalTranslation $translation);
+
+    /**
+     * Gets translation class
+     *
+     * @return string
+     */
+    public static function getTranslationClass();
 } 

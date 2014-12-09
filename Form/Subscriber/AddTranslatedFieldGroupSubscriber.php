@@ -15,7 +15,12 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class AddTranslatedFieldSubscriber implements EventSubscriberInterface
+/**
+ * Class AddTranslatedFieldGroupSubscriber
+ *
+ * @package Ladela\PersonalTranslationsWidgetBundle\Form\Subscriber
+ */
+class AddTranslatedFieldGroupSubscriber implements EventSubscriberInterface
 {
     /** @var FormFactoryInterface */
     private $factory;

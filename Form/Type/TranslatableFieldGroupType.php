@@ -8,19 +8,24 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Ladela\PersonalTranslationsWidgetBundle\Twig\Helper\TranslationsHelper;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-use Ladela\PersonalTranslationsWidgetBundle\Form\Subscriber\AddTranslatedFieldSubscriber;
+use Ladela\PersonalTranslationsWidgetBundle\Form\Subscriber\AddTranslatedFieldGroupSubscriber;
 
-class TranslatableFieldType extends AbstractType
+/**
+ * Class TranslatableFieldGroupType
+ *
+ * @package Ladela\PersonalTranslationsWidgetBundle\Form\Type
+ */
+class TranslatableFieldGroupType extends AbstractType
 {
     protected $container, $helper;
 
     /**
      * Constructor
      *
-     * @param AddTranslatedFieldSubscriber $subscriber
+     * @param AddTranslatedFieldGroupSubscriber $subscriber
      * @param TranslationsHelper           $helper
      */
-    public function __construct(AddTranslatedFieldSubscriber $subscriber, TranslationsHelper $helper)
+    public function __construct(AddTranslatedFieldGroupSubscriber $subscriber, TranslationsHelper $helper)
     {
         $this->subscriber = $subscriber;
         $this->helper = $helper;
@@ -63,6 +68,11 @@ class TranslatableFieldType extends AbstractType
         );
     }
 
+    /**
+     * Gets widget name
+     *
+     * @return string
+     */
     public function getName()
     {
         return 'translatable_field';
