@@ -25,6 +25,8 @@ class TranslationFieldDataTransformer implements DataTransformerInterface
     protected $field;
     /** @var array */
     protected $cultures = array();
+    /** @var string */
+    protected $defaultCulture;
 
     /**
      * Sets field name
@@ -64,6 +66,20 @@ class TranslationFieldDataTransformer implements DataTransformerInterface
     public function setCultures(array $cultures)
     {
         $this->cultures = $cultures;
+
+        return $this;
+    }
+
+    /**
+     * Sets default culture (to return reverse transformed value)
+     *
+     * @param string $defaultCulture
+     *
+     * @return $this
+     */
+    public function setDefaultCulture($defaultCulture)
+    {
+        $this->defaultCulture = $defaultCulture;
 
         return $this;
     }
@@ -147,7 +163,7 @@ class TranslationFieldDataTransformer implements DataTransformerInterface
             }
         }
 
-        return reset($array); // return first arrived value
+        return @$array[$this->defaultCulture] ?: reset($array); // return default culture value or first arrived value
     }
 
     /**

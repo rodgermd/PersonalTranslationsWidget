@@ -10,6 +10,7 @@ namespace Ladela\PersonalTranslationsWidgetBundle\Form\Type;
 
 
 use Doctrine\ORM\EntityManager;
+use Gedmo\Translatable\TranslatableListener;
 use Ladela\PersonalTranslationsWidgetBundle\Form\DataTransformer\TranslationFieldDataTransformer;
 use Ladela\PersonalTranslationsWidgetBundle\Twig\Helper\TranslationsHelper;
 use Symfony\Component\Form\AbstractType;
@@ -30,17 +31,20 @@ class TranslatedFieldType extends AbstractType
     protected $translationsHelper;
     /** @var EntityManager */
     protected $entityManager;
+    protected $translatableListener;
 
     /**
      * Constructor
      *
-     * @param TranslationsHelper $translationsHelper
-     * @param EntityManager      $entityManager
+     * @param TranslationsHelper   $translationsHelper
+     * @param EntityManager        $entityManager
+     * @param TranslatableListener $translatableListener
      */
-    public function __construct(TranslationsHelper $translationsHelper, EntityManager $entityManager)
+    public function __construct(TranslationsHelper $translationsHelper, EntityManager $entityManager, TranslatableListener $translatableListener)
     {
         $this->translationsHelper = $translationsHelper;
         $this->entityManager = $entityManager;
+        $this->translatableListener = $translatableListener;
     }
 
     /**
@@ -59,14 +63,16 @@ class TranslatedFieldType extends AbstractType
                 $options['field_type'],
                 array(
                     'label' => $name,
-                    'required' => $locale == $this->translationsHelper->getDefaultLocale(
-                    ) ? $options['required'] : false
+                    'required' => $locale == $this->translationsHelper->getDefaultLocale() ? $options['required'] : false
                 )
             );
         }
 
         $transformer = new TranslationFieldDataTransformer();
-        $transformer->setCultures(array_keys($this->translationsHelper->getLanguages()))->setField($builder->getName());
+        $transformer
+            ->setCultures(array_keys($this->translationsHelper->getLanguages()))
+            ->setField($builder->getName())
+            ->setDefaultCulture($this->translatableListener->getDefaultLocale());
 
         // Adds transformer
         $builder->addModelTransformer($transformer);
@@ -86,7 +92,7 @@ class TranslatedFieldType extends AbstractType
         // On PostSet data - persist translations
         $builder->addEventListener(
             FormEvents::POST_SUBMIT,
-            function (FormEvent $event) use($transformer) {
+            function (FormEvent $event) use ($transformer) {
                 foreach ($transformer->getFieldTranslations() as $translation) {
                     $this->entityManager->persist($translation);
                 }
