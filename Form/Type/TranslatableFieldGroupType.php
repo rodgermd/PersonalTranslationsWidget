@@ -75,6 +75,6 @@ class TranslatableFieldGroupType extends AbstractType
      */
     public function getName()
     {
-        return 'translatable_field';
+        return 'translatable_group';
     }
 }

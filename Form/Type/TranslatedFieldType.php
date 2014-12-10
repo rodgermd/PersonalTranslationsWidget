@@ -114,6 +114,6 @@ class TranslatedFieldType extends AbstractType
      */
     public function getName()
     {
-        return 'translated_field_single';
+        return 'translated_field';
     }
 }
