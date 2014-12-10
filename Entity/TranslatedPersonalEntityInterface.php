@@ -10,13 +10,14 @@ namespace Ladela\PersonalTranslationsWidgetBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Gedmo\Translatable\Entity\MappedSuperclass\AbstractPersonalTranslation;
+use Gedmo\Translatable\Translatable;
 
 /**
  * Interface TranslatedPersonalEntityInterface
  *
  * @package Ladela\PersonalTranslationsWidgetBundle\Entity
  */
-interface TranslatedPersonalEntityInterface
+interface TranslatedPersonalEntityInterface extends Translatable
 {
     /**
      * Sets Locale
@@ -26,13 +27,6 @@ interface TranslatedPersonalEntityInterface
      * @return $this
      */
     public function setTranslatableLocale($locale);
-
-    /**
-     * Gets Locale
-     *
-     * @return string
-     */
-    public function getLocale();
 
     /**
      * Gets translations

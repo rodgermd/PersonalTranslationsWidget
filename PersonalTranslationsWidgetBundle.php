@@ -19,7 +19,6 @@ class PersonalTranslationsWidgetBundle extends Bundle
      */
     public function build(ContainerBuilder $container)
     {
-        $container->addCompilerPass(new GedmoTranslationsPass());
         $container->addCompilerPass(new TwigResourcePass());
         $container->addCompilerPass(new TranslationsGetterPass());
     }

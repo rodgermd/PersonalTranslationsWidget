@@ -10,19 +10,18 @@ services:
   form.type.translated_field:
     class: Ladela\PersonalTranslationsWidgetBundle\Form\Type\TranslatedFieldType
     arguments: [@twig.translations.ladela_translations_helper, @doctrine.orm.default_entity_manager]
-    scope: prototype
     tags:
       - { name: form.type, alias: translated_field }
 
   ### SUBSCRIBERS
   form.subscriber.translated_field_group:
-      class: Ladela\PersonalTranslationsWidgetBundle\Form\Subscriber\AddTranslatedFieldGroupSubscriber
-      arguments: [@form.factory, @doctrine.orm.default_entity_manager, @validator, @twig.translations.ladela_translations_helper]
+    class: Ladela\PersonalTranslationsWidgetBundle\Form\Subscriber\AddTranslatedFieldGroupSubscriber
+    arguments: [@form.factory, @doctrine.orm.default_entity_manager, @validator, @twig.translations.ladela_translations_helper]
 
   ### TWIGS
   twig.translations.ladela_translations_helper:
     class: Ladela\PersonalTranslationsWidgetBundle\Twig\Helper\TranslationsHelper
-    arguments: [@gedmo.listener.translatable, @doctrine.orm.default_entity_manager]
+    arguments: [@stof_doctrine_extensions.listener.translatable, @doctrine.orm.default_entity_manager]
 
   twig.translations.ladela_translations_extension:
     class: Ladela\PersonalTranslationsWidgetBundle\Twig\TranslationsTwigExtension

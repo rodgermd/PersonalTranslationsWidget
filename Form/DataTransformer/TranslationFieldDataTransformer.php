@@ -147,7 +147,7 @@ class TranslationFieldDataTransformer implements DataTransformerInterface
             }
         }
 
-        return @$array[$this->object->getLocale()] ?: reset($array); // return object's locale value or just first arrived value
+        return reset($array); // return first arrived value
     }
 
     /**

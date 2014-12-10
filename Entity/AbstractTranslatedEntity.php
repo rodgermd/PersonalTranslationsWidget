@@ -23,7 +23,7 @@ abstract class AbstractTranslatedEntity implements TranslatedPersonalEntityInter
     /**
      * @var string
      */
-    protected $locale;
+    private $locale;
 
     /** @var ArrayCollection */
     protected $translations;
