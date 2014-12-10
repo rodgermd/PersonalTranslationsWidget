@@ -10,6 +10,7 @@ namespace Ladela\PersonalTranslationsWidgetBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Translatable\Entity\MappedSuperclass\AbstractPersonalTranslation;
 
 /**
  * Class AbstractTranslatedEntity
@@ -17,7 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @package Ladela\PersonalTranslationsWidgetBundle\Entity
  * @ORM\MappedSuperclass
  */
-abstract class AbstractTranslatedEntity
+abstract class AbstractTranslatedEntity implements TranslatedPersonalEntityInterface
 {
     /**
      * @var string
@@ -72,11 +73,11 @@ abstract class AbstractTranslatedEntity
     /**
      * Adds translation
      *
-     * @param AbstractTranslation $t
+     * @param AbstractPersonalTranslation $t
      *
      * @return $this
      */
-    public function addTranslation(AbstractTranslation $t)
+    public function addTranslation(AbstractPersonalTranslation $t)
     {
         if (!$this->translations->contains($t)) {
             $this->translations[] = $t;

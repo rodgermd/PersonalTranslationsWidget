@@ -97,6 +97,9 @@ class TranslationFieldDataTransformer implements DataTransformerInterface
      */
     public function transform($value)
     {
+        if (!$this->object) {
+            return $value;
+        }
         $value = $this->prepareEmptyCulturesArray();
 
         array_map(
@@ -164,6 +167,7 @@ class TranslationFieldDataTransformer implements DataTransformerInterface
 
     /**
      * Gets array locale => translation
+     *
      * @return AbstractPersonalTranslation[]
      */
     public function prepareTranslationsArray()
@@ -177,7 +181,7 @@ class TranslationFieldDataTransformer implements DataTransformerInterface
         );
 
         $class = $this->object->getTranslationClass();
-        foreach($this->cultures as $culture) {
+        foreach ($this->cultures as $culture) {
             if (!array_key_exists($culture, $result)) {
                 /** @var AbstractPersonalTranslation $translation */
                 $translation = new $class($culture, $this->field);

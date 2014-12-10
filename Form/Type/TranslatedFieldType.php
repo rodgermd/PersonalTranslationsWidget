@@ -76,8 +76,9 @@ class TranslatedFieldType extends AbstractType
             function (FormEvent $event) use ($transformer) {
                 $form = $event->getForm();
                 $parentForm = $form->getParent();
-
-                $transformer->setObject($parentForm->getData());
+                if ($parentForm->getData()) {
+                    $transformer->setObject($parentForm->getData());
+                }
             }
         );
 

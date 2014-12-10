@@ -1,4 +1,4 @@
-{% block translatable_field_widget %}
+{% block translatable_group_widget %}
   {% set translatable_fields = get_entity_translatable_fields(form.parent.vars.data) %}
   {% if translatable_fields is not empty %}
 
@@ -30,4 +30,4 @@
       </div>
     </div>
   {% endif %}
-{% endblock translatable_field_widget %}
+{% endblock translatable_group_widget %}

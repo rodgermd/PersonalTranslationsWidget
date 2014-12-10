@@ -248,6 +248,9 @@ class AddTranslatedFieldGroupSubscriber implements EventSubscriberInterface
     {
         //Builds the custom 'form' based on the provided locales
         $data = $event->getData();
+        if (!$data) {
+            return false;
+        }
         $form = $event->getForm();
         $this->options = $form->getConfig()->getOptions();
 
