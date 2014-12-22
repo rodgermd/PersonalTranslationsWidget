@@ -86,7 +86,7 @@ class TranslatedFieldType extends AbstractType
                 if ($parentForm->getData()) {
                     $transformer->setObject($parentForm->getData());
                 }
-            }
+            }, -10 // load later
         );
 
         // On PostSet data - persist translations
@@ -96,7 +96,7 @@ class TranslatedFieldType extends AbstractType
                 foreach ($transformer->getFieldTranslations() as $translation) {
                     $this->entityManager->persist($translation);
                 }
-            }
+            }, -10 // load later
         );
     }
 
