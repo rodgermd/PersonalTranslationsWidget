@@ -173,12 +173,12 @@ class TranslationFieldDataTransformer implements DataTransformerInterface
      */
     public function getFieldTranslations()
     {
-        return array_filter(
+        return $this->object ? array_filter(
             $this->object->getTranslations()->toArray(),
             function (AbstractPersonalTranslation $translation) {
                 return $translation->getField() == $this->field;
             }
-        );
+        ) : array();
     }
 
     /**
@@ -189,20 +189,23 @@ class TranslationFieldDataTransformer implements DataTransformerInterface
     public function prepareTranslationsArray()
     {
         $result = array();
-        array_map(
-            function (AbstractPersonalTranslation $translation) use (&$result) {
-                $result[$translation->getLocale()] = $translation;
-            },
-            $this->getFieldTranslations()
-        );
+        if ($this->object) {
+            array_map(
+                function (AbstractPersonalTranslation $translation) use (&$result) {
+                    $result[$translation->getLocale()] = $translation;
+                },
+                $this->getFieldTranslations()
+            );
 
-        $class = $this->object->getTranslationClass();
-        foreach ($this->cultures as $culture) {
-            if (!array_key_exists($culture, $result)) {
-                /** @var AbstractPersonalTranslation $translation */
-                $translation = new $class($culture, $this->field);
-                $this->object->addTranslation($translation);
-                $result[$culture] = $translation;
+
+            $class = $this->object->getTranslationClass();
+            foreach ($this->cultures as $culture) {
+                if (!array_key_exists($culture, $result)) {
+                    /** @var AbstractPersonalTranslation $translation */
+                    $translation = new $class($culture, $this->field);
+                    $this->object->addTranslation($translation);
+                    $result[$culture] = $translation;
+                }
             }
         }
 
