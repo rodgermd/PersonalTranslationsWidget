@@ -42,8 +42,8 @@ class TranslatedFieldType extends AbstractType
      */
     public function __construct(TranslationsHelper $translationsHelper, EntityManager $entityManager, TranslatableListener $translatableListener)
     {
-        $this->translationsHelper = $translationsHelper;
-        $this->entityManager = $entityManager;
+        $this->translationsHelper   = $translationsHelper;
+        $this->entityManager        = $entityManager;
         $this->translatableListener = $translatableListener;
     }
 
@@ -55,15 +55,16 @@ class TranslatedFieldType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $fieldOptions = $options;
-        unset($fieldOptions['field_type']);
         foreach ($this->translationsHelper->getLanguages() as $locale => $name) {
             $builder->add(
                 $locale,
-                $options['field_type'],
-                array(
-                    'label' => $name,
-                    'required' => $locale == $this->translationsHelper->getDefaultLocale() ? $options['required'] : false
+                @$options['field_type'],
+                array_merge(
+                    $options['field_options'],
+                    array(
+                        'label'    => $name,
+                        'required' => $locale == $this->translationsHelper->getDefaultLocale() ? $options['required'] : false
+                    )
                 )
             );
         }
@@ -81,12 +82,13 @@ class TranslatedFieldType extends AbstractType
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
             function (FormEvent $event) use ($transformer) {
-                $form = $event->getForm();
+                $form       = $event->getForm();
                 $parentForm = $form->getParent();
                 if ($parentForm->getData()) {
                     $transformer->setObject($parentForm->getData());
                 }
-            }, -10 // load later
+            },
+            -10 // load later
         );
 
         // On PostSet data - persist translations
@@ -96,7 +98,8 @@ class TranslatedFieldType extends AbstractType
                 foreach ($transformer->getFieldTranslations() as $translation) {
                     $this->entityManager->persist($translation);
                 }
-            }, -10 // load later
+            },
+            -10 // load later
         );
     }
 
@@ -109,7 +112,8 @@ class TranslatedFieldType extends AbstractType
     {
         $resolver->setDefaults(
             array(
-                'field_type' => 'text'
+                'field_type'    => 'text',
+                'field_options' => array()
             )
         )->setRequired('field_type');
     }
