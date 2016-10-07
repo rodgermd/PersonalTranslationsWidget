@@ -11,6 +11,7 @@ namespace Ladela\PersonalTranslationsWidgetBundle\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Translatable\Entity\MappedSuperclass\AbstractPersonalTranslation;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * Class AbstractTranslatedEntity
@@ -22,8 +23,9 @@ abstract class AbstractTranslatedEntity implements TranslatedPersonalEntityInter
 {
     /**
      * @var string
+     * @Gedmo\Locale
      */
-    private $locale;
+    protected $locale;
 
     /** @var ArrayCollection */
     protected $translations;
