@@ -8,7 +8,6 @@
 
 namespace Ladela\PersonalTranslationsWidgetBundle\Form\Type;
 
-
 use Doctrine\ORM\EntityManager;
 use Gedmo\Translatable\TranslatableListener;
 use Ladela\PersonalTranslationsWidgetBundle\Form\DataTransformer\TranslationFieldDataTransformer;
@@ -18,7 +17,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * Class TranslatedFieldType
@@ -106,25 +105,24 @@ class TranslatedFieldType extends AbstractType
     /**
      * Adds field_type option
      *
-     * @param OptionsResolverInterface $resolver
+     * @param OptionsResolver $resolver
      */
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(
-            array(
+            [
                 'field_type'    => 'text',
-                'field_options' => array()
-            )
+                'field_options' => []
+            ]
         )->setRequired('field_type');
     }
-
 
     /**
      * Returns the name of this type.
      *
      * @return string The name of this type
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'translated_field';
     }

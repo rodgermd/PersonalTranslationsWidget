@@ -1,29 +1,29 @@
 {
-    "name": "ladela/personal-translations-widget-bundle",
-    "description": "Adds translations widget based on Personal translations",
-    "keywords": [
-        "twig",
-        "form",
-        "translations"
-    ],
-    "homepage": "https://github.com/rodgermd/PersonalTranslationsWidget.git",
-    "type": "symfony-bundle",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Alexander Murashov",
-            "email": "rodger@ladela.com"
-        }
-    ],
-    "require": {
-        "symfony/framework-bundle": ">=2.3.0",
-        "stof/doctrine-extensions-bundle": "*",
-        "twig/extensions": "@stable"
-    },
-    "autoload": {
-        "psr-0": {
-            "Ladela\\PersonalTranslationsWidgetBundle": ""
-        }
-    },
-    "target-dir": "Ladela/PersonalTranslationsWidgetBundle"
+  "name"       : "ladela/personal-translations-widget-bundle",
+  "description": "Adds translations widget based on Personal translations",
+  "keywords"   : [
+    "twig",
+    "form",
+    "translations"
+  ],
+  "homepage"   : "https://github.com/rodgermd/PersonalTranslationsWidget.git",
+  "type"       : "symfony-bundle",
+  "license"    : "MIT",
+  "authors"    : [
+    {
+      "name" : "Alexander Murashov",
+      "email": "rodger@ladela.com"
+    }
+  ],
+  "require"    : {
+    "symfony/symfony"                : ">=3.2.0",
+    "stof/doctrine-extensions-bundle": "*",
+    "twig/extensions"                : "@stable"
+  },
+  "autoload"   : {
+    "psr-0": {
+      "Ladela\\PersonalTranslationsWidgetBundle": ""
+    }
+  },
+  "target-dir" : "Ladela/PersonalTranslationsWidgetBundle"
 }
